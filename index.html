@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exclusive GK Quiz — Animated Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#eaf4ff;
+      --card:#ffffff;
+      --blue-1:#0066ff;
+      --blue-2:#00c6ff;
+      --muted:#6b7280;
+      --green:#00c851;
+      --red:#ff4444;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+    body {
+      background:linear-gradient(135deg,var(--bg),#f6fbff);
+      display:flex; justify-content:center; align-items:center;
+      min-height:100vh;
+      overflow:hidden;
+    }
+
+    .screen {
+      display:none;
+      width:100%; max-width:800px;
+      background:var(--card);
+      border-radius:20px; padding:36px;
+      box-shadow:0 12px 40px rgba(0,102,255,0.15);
+      text-align:center;
+      animation:fadeIn .8s ease both;
+    }
+    .active { display:block; }
+
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(40px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    h1,h2 { color:var(--blue-1); margin-bottom:14px; }
+    p { color:var(--muted); }
+
+    button {
+      background:linear-gradient(135deg,var(--blue-1),var(--blue-2));
+      color:white; border:none; border-radius:10px;
+      padding:14px 24px; font-size:16px; cursor:pointer;
+      font-weight:600; transition:all .3s ease;
+    }
+    button:hover { transform:scale(1.05); box-shadow:0 0 20px rgba(0,102,255,0.3); }
+
+    #quiz-screen { text-align:left; }
+
+    .question {
+      font-size:22px; font-weight:600;
+      margin-bottom:18px;
+      color:var(--blue-1);
+      animation:slideIn .6s ease both;
+    }
+
+    @keyframes slideIn {
+      from { opacity:0; transform:translateX(-30px); }
+      to { opacity:1; transform:translateX(0); }
+    }
+
+    .options { display:flex; flex-direction:column; gap:12px; }
+    .option {
+      padding:12px 16px;
+      border:1px solid #d0e4ff;
+      border-radius:12px;
+      cursor:pointer;
+      background:white;
+      transition:all .3s ease;
+    }
+    .option:hover { transform:translateY(-3px); box-shadow:0 5px 15px rgba(0,102,255,0.1); }
+
+    .correct {
+      background:linear-gradient(90deg,#e6ffef,#f2fff8);
+      border-color:var(--green);
+      animation:greenFlash .5s ease;
+    }
+    .wrong {
+      background:linear-gradient(90deg,#ffe8e8,#fff2f2);
+      border-color:var(--red);
+      animation:redFlash .5s ease;
+    }
+
+    @keyframes greenFlash {
+      0% { box-shadow:0 0 0 0 rgba(0,200,81,0.6); }
+      100% { box-shadow:0 0 25px 6px rgba(0,200,81,0.3); }
+    }
+    @keyframes redFlash {
+      0% { box-shadow:0 0 0 0 rgba(255,68,68,0.6); }
+      100% { box-shadow:0 0 25px 6px rgba(255,68,68,0.3); }
+    }
+
+    .progress {
+      height:10px; background:#dcecff;
+      border-radius:999px; overflow:hidden;
+      margin:16px 0;
+    }
+    .progress i {
+      display:block; height:100%; width:0%;
+      background:linear-gradient(90deg,var(--blue-1),var(--blue-2));
+      transition:width .4s ease;
+    }
+
+    .quiz-footer {
+      margin-top:20px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+
+    .timer {
+      font-weight:700; color:var(--blue-1);
+      font-size:18px;
+      animation:pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform:scale(1); opacity:1; }
+      to { transform:scale(1.1); opacity:0.8; }
+    }
+
+    #result-screen .score {
+      font-size:34px; color:var(--blue-1);
+      font-weight:800; margin:20px 0;
+      animation:fadeIn .8s ease both;
+    }
+
+    /* Transition effect when switching screens */
+    .fadeOut {
+      animation:fadeOut .6s ease both;
+    }
+    @keyframes fadeOut {
+      from { opacity:1; transform:translateY(0); }
+      to { opacity:0; transform:translateY(-30px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Start Screen -->
+  <div id="start-screen" class="screen active">
+    <h1>✨ Exclusive GK Quiz</h1>
+    <p>Test your knowledge with 10 fun questions!<br>Animated Blue & White Theme.</p>
+    <button id="start-btn">Start Quiz 🚀</button>
+  </div>
+
+  <!-- Quiz Screen -->
+  <div id="quiz-screen" class="screen">
+    <div class="progress"><i id="prog"></i></div>
+    <div class="question" id="qtext">Loading...</div>
+    <div class="options" id="options"></div>
+    <div class="quiz-footer">
+      <div class="timer">⏳ <span id="time">--</span></div>
+      <div>
+        <button id="skip-btn" style="background:#fff;color:var(--blue-1);border:1px solid #d1e8ff;">Skip</button>
+        <button id="next-btn">Next ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Screen -->
+  <div id="result-screen" class="screen">
+    <h2>🎉 Quiz Completed!</h2>
+    <div class="score" id="finalScore">0 / 0</div>
+    <p>Thanks for playing! Try again and beat your score 🔥</p>
+    <button id="restart-btn">Play Again 🔁</button>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      { q:"Which planet is known as the Red Planet?", options:["Venus","Mars","Jupiter","Mercury"], correct:1 },
+      { q:"Who wrote 'Jana Gana Mana'?", options:["Bankim Chandra","Rabindranath Tagore","Sarojini Naidu","Bharathiyar"], correct:1 },
+      { q:"Capital of Australia?", options:["Sydney","Melbourne","Canberra","Perth"], correct:2 },
+      { q:"How many continents?", options:["5","6","7","8"], correct:2 },
+      { q:"Who is known as 'Father of Computers'?", options:["Alan Turing","Charles Babbage","Tim Berners-Lee","John Neumann"], correct:1 },
+      { q:"Chemical symbol for water?", options:["CO2","O2","H2O","NaCl"], correct:2 },
+      { q:"Longest river?", options:["Amazon","Nile","Yangtze","Mississippi"], correct:1 },
+      { q:"Most native speakers language?", options:["English","Mandarin Chinese","Hindi","Spanish"], correct:1 },
+      { q:"India got independence in?", options:["1945","1947","1950","1952"], correct:1 },
+      { q:"Largest ocean?", options:["Atlantic","Pacific","Indian","Arctic"], correct:1 }
+    ];
+
+    let current=0, score=0, timer=20, interval;
+    const total=QUESTIONS.length;
+
+    const startScreen=document.getElementById('start-screen');
+    const quizScreen=document.getElementById('quiz-screen');
+    const resultScreen=document.getElementById('result-screen');
+    const qtext=document.getElementById('qtext');
+    const optionsWrap=document.getElementById('options');
+    const nextBtn=document.getElementById('next-btn');
+    const skipBtn=document.getElementById('skip-btn');
+    const prog=document.getElementById('prog');
+    const timeEl=document.getElementById('time');
+    const finalScore=document.getElementById('finalScore');
+
+    document.getElementById('start-btn').addEventListener('click',()=>{
+      transition(startScreen,quizScreen);
+      loadQuestion();
+    });
+
+    document.getElementById('restart-btn').addEventListener('click',()=>{
+      transition(resultScreen,startScreen);
+      current=0; score=0;
+    });
+
+    skipBtn.addEventListener('click',()=>{
+      clearInterval(interval);
+      nextQuestion();
+    });
+    nextBtn.addEventListener('click',()=>{
+      clearInterval(interval);
+      nextQuestion();
+    });
+
+    function transition(from,to){
+      from.classList.add('fadeOut');
+      setTimeout(()=>{
+        from.classList.remove('active','fadeOut');
+        to.classList.add('active');
+      },500);
+    }
+
+    function loadQuestion(){
+      const q=QUESTIONS[current];
+      qtext.textContent=`Q${current+1}. ${q.q}`;
+      optionsWrap.innerHTML='';
+      q.options.forEach((opt,idx)=>{
+        const div=document.createElement('div');
+        div.className='option';
+        div.textContent=opt;
+        div.addEventListener('click',()=>selectOption(div,idx,q.correct));
+        optionsWrap.appendChild(div);
+      });
+      updateProgress();
+      startTimer();
+    }
+
+    function selectOption(el,idx,correctIdx){
+      clearInterval(interval);
+      Array.from(optionsWrap.children).forEach(o=>o.style.pointerEvents='none');
+      if(idx===correctIdx){
+        el.classList.add('correct');
+        score++;
+      } else {
+        el.classList.add('wrong');
+        optionsWrap.children[correctIdx].classList.add('correct');
+      }
+    }
+
+    function nextQuestion(){
+      if(current<total-1){
+        current++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function updateProgress(){
+      const pct=(current/total)*100;
+      prog.style.width=pct+'%';
+    }
+
+    function startTimer(){
+      timer=20;
+      timeEl.textContent=timer+'s';
+      interval=setInterval(()=>{
+        timer--;
+        timeEl.textContent=timer+'s';
+        if(timer<=0){
+          clearInterval(interval);
+          autoReveal();
+        }
+      },1000);
+    }
+
+    function autoReveal(){
+      const correctIdx=QUESTIONS[current].correct;
+      Array.from(optionsWrap.children).forEach(o=>{
+        o.style.pointerEvents='none';
+        if(o.textContent===QUESTIONS[current].options[correctIdx]){
+          o.classList.add('correct');
+        }
+      });
+      setTimeout(nextQuestion,900);
+    }
+
+    function showResult(){
+      transition(quizScreen,resultScreen);
+      finalScore.textContent=`${score} / ${total}`;
+      prog.style.width='100%';
+    }
+  </script>
+</body>
+</html>
